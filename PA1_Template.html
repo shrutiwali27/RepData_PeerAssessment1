@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>unzip(&ldquo;repdata%2Fdata%2Factivity.zip&rdquo;,exdir = &ldquo;data&rdquo;)</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<p>keep_md : TRUE
+library(&ldquo;data.table&rdquo;)
+library(ggplot2)
+fileUrl &lt;- &ldquo;<a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip</a>&rdquo;
+download.file(fileUrl, destfile = paste0(getwd(), &#39;/repdata%2Fdata%2Factivity.zip&#39;), method = &ldquo;curl&rdquo;)</p>
+
+<h2>unzip(&ldquo;repdata%2Fdata%2Factivity.zip&rdquo;,exdir = &ldquo;data&rdquo;)</h2>
+
+<p>activityDT &lt;- data.table::fread(input = &ldquo;data/activity.csv&rdquo;)</p>
+
+<hr/>
+
+<p>Total_Steps &lt;- activityDT[, c(lapply(.SD, sum, na.rm = FALSE)), .SDcols = c(&ldquo;steps&rdquo;), by = .(date)] 
+head(Total_Steps, 10)</p>
+
+<p>ggplot(Total_Steps, aes(x = steps)) +
+  geom_histogram(fill = &ldquo;blue&rdquo;, binwidth = 1000) +
+  labs(title = &ldquo;Daily Steps&rdquo;, x = &ldquo;Steps&rdquo;, y = &ldquo;Frequency&rdquo;)</p>
+
+<p>Total_Steps[, .(Mean_Steps = mean(steps, na.rm = TRUE), Median_Steps = median(steps, na.rm = TRUE))]</p>
+
+<hr/>
+
+<p>IntervalDT &lt;- activityDT[, c(lapply(.SD, mean, na.rm = TRUE)), .SDcols = c(&ldquo;steps&rdquo;), by = .(interval)]
+ggplot(IntervalDT, aes(x = interval , y = steps)) + geom_line(color=&ldquo;blue&rdquo;, size=1) + 
+  labs(title = &ldquo;Avg. Daily Steps&rdquo;, x = &ldquo;Interval&rdquo;, y = &ldquo;Avg. Steps per day&rdquo;)</p>
+
+<p>IntervalDT[steps == max(steps), .(max_interval = interval)]</p>
+
+<hr/>
+
+<p>activityDT[is.na(steps), .N ]</p>
+
+<p>activityDT[is.na(steps), &ldquo;steps&rdquo;] &lt;- activityDT[, c(lapply(.SD, median, na.rm = TRUE)), .SDcols = c(&ldquo;steps&rdquo;)]</p>
+
+<p>data.table::fwrite(x = activityDT, file = &ldquo;data/tidyData.csv&rdquo;, quote = FALSE)</p>
+
+<p>Total_Steps &lt;- activityDT[, c(lapply(.SD, sum)), .SDcols = c(&ldquo;steps&rdquo;), by = .(date)] </p>
+
+<p>ggplot(Total_Steps, aes(x = steps)) + geom_histogram(fill = &ldquo;blue&rdquo;, binwidth = 1000) + </p>
+
+<h2>  labs(title = &ldquo;Daily Steps&rdquo;, x = &ldquo;Steps&rdquo;, y = &ldquo;Frequency&rdquo;)</h2>
+
+<p>activityDT &lt;- data.table::fread(input = &ldquo;data/activity.csv&rdquo;)
+activityDT[, date := as.POSIXct(date, format = &ldquo;%Y-%m-%d&rdquo;)]
+activityDT[, <code>Day of Week</code>:= weekdays(x = date)]
+activityDT[grepl(pattern = &ldquo;Monday|Tuesday|Wednesday|Thursday|Friday&rdquo;, x = <code>Day of Week</code>), &ldquo;weekday or weekend&rdquo;] &lt;- &ldquo;weekday&rdquo;
+activityDT[grepl(pattern = &ldquo;Saturday|Sunday&rdquo;, x = <code>Day of Week</code>), &ldquo;weekday or weekend&rdquo;] &lt;- &ldquo;weekend&rdquo;
+activityDT[, <code>weekday or weekend</code> := as.factor(<code>weekday or weekend</code>)]
+head(activityDT, 10)</p>
+
+<p>activityDT[is.na(steps), &ldquo;steps&rdquo;] &lt;- activityDT[, c(lapply(.SD, median, na.rm = TRUE)), .SDcols = c(&ldquo;steps&rdquo;)]
+IntervalDT &lt;- activityDT[, c(lapply(.SD, mean, na.rm = TRUE)), .SDcols = c(&ldquo;steps&rdquo;), by = .(interval, <code>weekday or weekend</code>)] 
+ggplot(IntervalDT , aes(x = interval , y = steps, color=<code>weekday or weekend</code>)) + 
+  geom_line() + labs(title = &ldquo;Avg. Daily Steps by Weektype&rdquo;, x = &ldquo;Interval&rdquo;, y = &ldquo;No. of Steps&rdquo;) + facet_wrap(~<code>weekday or weekend</code> , ncol = 1, nrow=2)</p>
+
+<hr/>
+
+</body>
+
+</html>
