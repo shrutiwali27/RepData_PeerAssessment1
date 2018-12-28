@@ -16,6 +16,7 @@ unzip("repdata%2Fdata%2Factivity.zip",exdir = "data")
 Reading csv file
 activityDT <- data.table::fread(input = "data/activity.csv")
 
+--------------------------------------------------------------------------------------------------------------
 
 
 ## What is mean total number of steps taken per day?
@@ -32,6 +33,7 @@ ggplot(Total_Steps, aes(x = steps)) +
 3.
 Total_Steps[, .(Mean_Steps = mean(steps, na.rm = TRUE), Median_Steps = median(steps, na.rm = TRUE))]
 
+---------------------------------------------------------------------------------------------------------------------------
 
 ## What is the average daily activity pattern?
 1.
@@ -42,6 +44,7 @@ ggplot(IntervalDT, aes(x = interval , y = steps)) + geom_line(color="blue", size
 2.
 IntervalDT[steps == max(steps), .(max_interval = interval)]
 
+----------------------------------------------------------------------------------------------------------------------------------
 ## Imputing missing values
 1.
 activityDT[is.na(steps), .N ]
@@ -62,6 +65,8 @@ ggplot(Total_Steps, aes(x = steps)) + geom_histogram(fill = "blue", binwidth = 1
 Type of Estimate | Mean_Steps | Median_Steps
 First Part (with na) | 10765 | 10765
 Second Part (fillin in na with median) | 9354.23 | 10395
+
+--------------------------------------------------------------------------------------------------------------------------------------
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
